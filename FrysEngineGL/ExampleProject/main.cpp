@@ -14,13 +14,19 @@
 const int WIDTH = 800;
 const int HEIGHT = 600;
 
+// Init Camera
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
 void FramebufferSizeCallback(GLFWwindow* window, int width, int height);
-void ProcessInput(GLFWwindow* window);
+void ProcessInput(GLFWwindow* window, float deltaTime);
+
+float deltaTime = 0.0f;	// Time between current frame and last frame
+float lastFrame = 0.0f; // Time of last frame
 
 int main()
 {
-	double previousFrame = glfwGetTime();
-
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -48,6 +54,7 @@ int main()
 	glViewport(0, 0, WIDTH, HEIGHT);
 	glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
 
+	// Init geometry
 	float cubeVertices[] = {
 		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
 		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
@@ -176,33 +183,30 @@ int main()
 	stbi_image_free(data);
 
 	shader.Use(); // don't forget to activate the shader before setting uniforms!  
-	glUniform1i(glGetUniformLocation(shader.ID, "Texture1"), 0); // set it manually
+	glUniform1i(glGetUniformLocation(shader.m_id, "Texture1"), 0); // set it manually
 	shader.SetInt("Texture2", 1); // or with shader class
 
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
-	glm::mat4 view = glm::mat4(1.0f);
-	// note that we're translating the scene in the reverse direction of where we want to move
-	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-
+	glm::mat4 view;
 	glm::mat4 projection;
 	projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-
-	float deltaTime;
-	double currentFrame;
 
 	glEnable(GL_DEPTH_TEST);
 
 	while (!glfwWindowShouldClose(window))
 	{
-		currentFrame = glfwGetTime();
-		deltaTime = (float) (currentFrame - previousFrame);
+		float currentFrame = glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
 
 		// process input
-		ProcessInput(window);
+		ProcessInput(window, deltaTime);
 
 		// update
+		glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+
 		shader.Use();
 
 		int modelLocation = shader.GetUniformLocation("ModelMatrix");
@@ -234,7 +238,7 @@ int main()
 			if (i % 3 == 0)  // every 3rd iteration (including the first) we set the angle using GLFW's time function.
 				angle = glfwGetTime() * 25.0f;
 			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-			shader.setMat4("ModelMatrix", model);
+			shader.SetMat4("ModelMatrix", model);
 
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
@@ -243,8 +247,6 @@ int main()
 		// check and call events and swap the buffers
 		glfwPollEvents();
 		glfwSwapBuffers(window);
-
-		previousFrame = currentFrame;
 	}
 
 	glfwTerminate();
@@ -256,8 +258,18 @@ void FramebufferSizeCallback(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height);
 }
 
-void ProcessInput(GLFWwindow* window)
+void ProcessInput(GLFWwindow* window, float deltaTime)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
+
+	const float cameraSpeed = 2.5f * deltaTime; // adjust accordingly
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		cameraPos += cameraSpeed * cameraFront;
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		cameraPos -= cameraSpeed * cameraFront;
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
 }

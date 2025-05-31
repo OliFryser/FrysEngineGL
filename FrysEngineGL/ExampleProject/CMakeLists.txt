@@ -9,7 +9,8 @@ if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET ExampleProject PROPERTY CXX_STANDARD 20)
 endif()
 
-target_link_libraries(ExampleProject
+target_link_libraries(
+	ExampleProject
 	glfw3
 	opengl32
 	frysgl)
