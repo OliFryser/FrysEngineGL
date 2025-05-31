@@ -11,4 +11,5 @@ endif()
 
 target_link_libraries(ExampleProject
 	glfw3
-	opengl32)
+	opengl32
+	frysgl)

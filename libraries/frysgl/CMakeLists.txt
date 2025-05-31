@@ -15,4 +15,4 @@ FOREACH(subdir ${subdirectories})
 	LIST(APPEND target_src ${subdir_src})
 ENDFOREACH()
 
-#add_library(frysGL STATIC ${target_inc} ${target_src})
+add_library(frysgl STATIC ${target_inc} ${target_src})

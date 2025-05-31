@@ -9,7 +9,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-#include "Shader.h"
+#include <frysGL/shader/Shader.h>
 
 const int WIDTH = 800;
 const int HEIGHT = 600;

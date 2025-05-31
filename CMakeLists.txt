@@ -20,6 +20,20 @@ MACRO(SUBDIRLIST result curdir)
     SET(${result} ${dirlist})
 ENDMACRO()
 
+if(APPLE)
+    find_library(IOKIT_LIBRARY IOKit)
+    find_library(COCOA_LIBRARY Cocoa)
+    find_library(OPENGL_LIBRARY OpenGL)
+    find_library(COREVIDEO_LIBRARY CoreVideo)
+
+    set(APPLE_LIBRARIES 
+		${OPENGL_LIBRARY}
+		${COCOA_LIBRARY}
+		${IOKIT_LIBRARY}
+		${COREVIDEO_LIBRARY}
+	)
+endif()
+
 project ("FrysEngineGLExample")
 set(EXTERNAL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../OpenGL")
 
@@ -34,4 +48,5 @@ include_directories(
 link_directories(${EXTERNAL_DIR}/Libs)
 
 # Include sub-projects.
+add_subdirectory(libraries)
 add_subdirectory ("FrysEngineGL")
