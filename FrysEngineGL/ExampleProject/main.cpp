@@ -10,17 +10,23 @@
 #include <stb_image.h>
 
 #include <frysGL/shader/Shader.h>
+#include <frysGL/camera/Camera.h>
 
 const int WIDTH = 800;
 const int HEIGHT = 600;
 
-// Init Camera
-glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+// camera
+Camera camera(glm::vec3(0.0f, 0.0f, 3.0f)	);
+bool firstMouse = true;
+bool cameraEnabled, enablePressed;
+float lastX, lastY;
+float aspectRatio = WIDTH / (float) HEIGHT;
 
 void FramebufferSizeCallback(GLFWwindow* window, int width, int height);
 void ProcessInput(GLFWwindow* window, float deltaTime);
+void MouseCallback(GLFWwindow* window, double xpos, double ypos);
+void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+void ToggleCamera(GLFWwindow* window);
 
 float deltaTime = 0.0f;	// Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
@@ -53,6 +59,9 @@ int main()
 
 	glViewport(0, 0, WIDTH, HEIGHT);
 	glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
+
+	// init camera enabled
+	ToggleCamera(window);
 
 	// Init geometry
 	float cubeVertices[] = {
@@ -191,7 +200,6 @@ int main()
 
 	glm::mat4 view;
 	glm::mat4 projection;
-	projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -205,7 +213,8 @@ int main()
 		ProcessInput(window, deltaTime);
 
 		// update
-		glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+		view = camera.GetViewMatrix();
+		projection = glm::perspective(glm::radians(camera.m_zoom), aspectRatio, 0.1f, 100.0f);
 
 		shader.Use();
 
@@ -253,9 +262,18 @@ int main()
 	return 0;
 }
 
+void ToggleCamera(GLFWwindow* window)
+{
+	cameraEnabled = !cameraEnabled;
+	glfwSetInputMode(window, GLFW_CURSOR, cameraEnabled ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+	glfwSetCursorPosCallback(window, cameraEnabled ? MouseCallback : NULL);
+	glfwSetScrollCallback(window, cameraEnabled ? ScrollCallback : NULL);
+}
+
 void FramebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
+	aspectRatio = width / (float)height;
 }
 
 void ProcessInput(GLFWwindow* window, float deltaTime)
@@ -263,13 +281,42 @@ void ProcessInput(GLFWwindow* window, float deltaTime)
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 
-	const float cameraSpeed = 2.5f * deltaTime; // adjust accordingly
+	bool enableCameraPressed = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS;
+	if (enableCameraPressed && !enablePressed)
+	{
+		ToggleCamera(window);
+		firstMouse = true;
+	}
+	enablePressed = enableCameraPressed;
+
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		cameraPos += cameraSpeed * cameraFront;
+		camera.ProcessKeyboard(FORWARD, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		cameraPos -= cameraSpeed * cameraFront;
+		camera.ProcessKeyboard(BACKWARD, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+		camera.ProcessKeyboard(LEFT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+		camera.ProcessKeyboard(RIGHT, deltaTime);
+}
+
+void MouseCallback(GLFWwindow* window, double xpos, double ypos)
+{
+	if (firstMouse)
+	{
+		lastX = xpos;
+		lastY = ypos;
+		firstMouse = false;
+	}
+
+	float xoffset = xpos - lastX;
+	float yoffset = lastY - ypos;
+	lastX = xpos;
+	lastY = ypos;
+
+	camera.ProcessMouseMovement(xoffset, yoffset);
+}
+
+void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+{
+	camera.ProcessMouseScroll(static_cast<float>(yoffset));
 }
