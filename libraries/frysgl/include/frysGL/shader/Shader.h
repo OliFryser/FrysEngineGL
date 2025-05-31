@@ -3,8 +3,6 @@
 #include <glad/glad.h> // include glad to get all the required OpenGL headers
 
 #include <string>
-#include <fstream>
-#include <sstream>
 #include <iostream>
 
 #include <glm/glm.hpp>
@@ -18,7 +16,7 @@ public:
     // constructor reads and builds the shader
     Shader(const char* vertexPath, const char* fragmentPath);
     // use/activate the shader
-    void Use();
+    void Use() const;
     // utility uniform functions
     void SetBool(const std::string& name, bool value) const;
     void SetInt(const std::string& name, int value) const;
