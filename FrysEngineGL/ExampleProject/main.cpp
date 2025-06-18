@@ -20,7 +20,7 @@ Camera camera(glm::vec3(0.0f, 0.0f, 5.0f)	);
 bool firstMouse = true;
 bool cameraEnabled, enablePressed;
 float lastX, lastY;
-float aspectRatio = WIDTH / (float) HEIGHT;
+float aspectRatio = WIDTH / static_cast<float>(HEIGHT);
 
 void FramebufferSizeCallback(GLFWwindow* window, int width, int height);
 void ProcessInput(GLFWwindow* window, float deltaTime);
@@ -53,7 +53,7 @@ int main()
 
 	glfwMakeContextCurrent(window);
 
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+	if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
 	{
 		std::cout << "Failed to initialize GLAD" << std::endl;
 		return -1;
@@ -67,47 +67,47 @@ int main()
 
 	// Init geometry
 	constexpr float cubeVertices[] = {
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
 
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
 
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
 
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
 
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
 
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
 	};
 
 	GLuint VAO, VBO;
@@ -120,10 +120,10 @@ int main()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
 
 	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), static_cast<void *>(nullptr));
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), static_cast<void *>(nullptr));
 	glEnableVertexAttribArray(0);
 
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), reinterpret_cast<void *>(3 * sizeof(float)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), reinterpret_cast<void *>(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
 	// unbind VAO and VBO and EBO
@@ -136,11 +136,8 @@ int main()
 	// we only need to bind to the VBO, the container's VBO's data already contains the data.
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	// set the vertex attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), static_cast<void *>(nullptr));
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), static_cast<void *>(nullptr));
 	glEnableVertexAttribArray(0);
-
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), reinterpret_cast<void *>(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
 	// unbind
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -175,17 +172,19 @@ int main()
 		glm::mat4 view = camera.GetViewMatrix();
 		glm::mat4 projection = glm::perspective(glm::radians(camera.m_zoom), aspectRatio, 0.1f, 100.0f);
 
-		lightingShader.Use();
-		lightingShader.SetMat4("ViewMatrix", view);
-		lightingShader.SetMat4("ProjectionMatrix", projection);
-
 		// render
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Uncomment to use wireframe mode
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+
+		lightingShader.Use();
+		lightingShader.SetMat4("ViewMatrix", view);
+		lightingShader.SetMat4("ProjectionMatrix", projection);
+		lightingShader.SetVec3("LightPos", lightPos);
+		lightingShader.SetVec3("ViewPos", camera.m_position);
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
