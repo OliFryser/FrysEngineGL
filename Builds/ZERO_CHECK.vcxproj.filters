@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\olive\source\repos\FrysEngineGL\Builds\CMakeFiles\0a94a8bc3c3d1d93af9bb5a13da213b2\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{AB85CDB0-B19A-3346-A3B5-61485B333211}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

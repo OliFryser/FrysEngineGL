@@ -4,6 +4,8 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -11,6 +13,8 @@
 
 #include <frysGL/shader/Shader.h>
 #include <frysGL/camera/Camera.h>
+
+#include "frysGL/buffer/VertexArrayObject.h"
 
 constexpr int WIDTH = 800;
 constexpr int HEIGHT = 600;
@@ -110,10 +114,10 @@ int main()
 		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
 	};
 
-	GLuint VAO, VBO;
+	const VertexArrayObject VAO;
+	GLuint VBO;
 
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
+	VAO.Bind();
 
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -127,19 +131,18 @@ int main()
 	glEnableVertexAttribArray(1);
 
 	// unbind VAO and VBO and EBO
-	glBindVertexArray(0);
+	VertexArrayObject::Unbind();
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	unsigned int lightVAO;
-	glGenVertexArrays(1, &lightVAO);
-	glBindVertexArray(lightVAO);
+	VertexArrayObject lightVAO;
+	lightVAO.Bind();
 	// we only need to bind to the VBO, the container's VBO's data already contains the data.
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	// set the vertex attribute
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), static_cast<void *>(nullptr));
 	glEnableVertexAttribArray(0);
 	// unbind
-	glBindVertexArray(0);
+	VertexArrayObject::Unbind();
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	// Init shader
@@ -179,22 +182,27 @@ int main()
 		// Uncomment to use wireframe mode
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+		auto lightOffset = glm::vec3(0.0f, sin(currentFrame), 0.0f);
+		auto rotation = glm::rotate(cos(currentFrame) * deltaTime, glm::vec3(0.0f, 1.0f, 0.0f));
+		auto translation = glm::translate(lightOffset * deltaTime);
+		lightModel = rotation * translation * lightModel;
+		lightPos = glm::vec3(lightModel[3][0], lightModel[3][1], lightModel[3][2]);
 
 		lightingShader.Use();
 		lightingShader.SetMat4("ViewMatrix", view);
 		lightingShader.SetMat4("ProjectionMatrix", projection);
 		lightingShader.SetVec3("LightPos", lightPos);
 		lightingShader.SetVec3("ViewPos", camera.m_position);
-		glBindVertexArray(VAO);
+		VAO.Bind();
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		lightSourceShader.Use();
 		lightSourceShader.SetMat4("ModelMatrix", lightModel);
 		lightSourceShader.SetMat4("ViewMatrix", view);
 		lightSourceShader.SetMat4("ProjectionMatrix", projection);
-		glBindVertexArray(lightVAO);
+		lightVAO.Bind();
 		glDrawArrays(GL_TRIANGLES, 0, 36);
-		glBindVertexArray(0);
+		VertexArrayObject::Unbind();
 
 		// check and call events and swap the buffers
 		glfwPollEvents();
