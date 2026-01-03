@@ -32,6 +32,7 @@ void ProcessInput(GLFWwindow* window, float deltaTime);
 void MouseCallback(GLFWwindow* window, double xpos, double ypos);
 void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 void ToggleCamera(GLFWwindow* window);
+unsigned int LoadTexture(char const* path);
 
 float deltaTime = 0.0f;	// Time between the current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
@@ -72,76 +73,80 @@ int main()
 
 	// Init geometry
 	constexpr float cubeVertices[] = {
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+        // positions          // normals           // texture coords
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  0.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
 
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
 
-		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
 
-		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
 
-		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  1.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
 
-		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
-	};
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f
+    };
 
-	const VertexArrayObject VAO;
+	const VertexArrayObject cubeVAO;
 	const VertexBufferObject VBO;
 
-	VAO.Bind();
+	cubeVAO.Bind();
 
 	VBO.Bind();
 	VertexBufferObject::SetBufferData(cubeVertices, sizeof(cubeVertices), GL_STATIC_DRAW);
 
 	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), static_cast<void *>(nullptr));
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), static_cast<void *>(nullptr));
 	glEnableVertexAttribArray(0);
 
-	// UV attribute
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), reinterpret_cast<void *>(3 * sizeof(float)));
+	// Normal attribute
+	glVertexAttribPointer(1,3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), reinterpret_cast<void *>(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+
+	// UV attribute
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), reinterpret_cast<void *>(6 * sizeof(float)));
+	glEnableVertexAttribArray(2);
 
 	// unbind VAO and VBO and EBO
 	VertexArrayObject::Unbind();
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	VertexArrayObject lightVAO;
-	lightVAO.Bind();
+	const VertexArrayObject lightCubeVAO;
+	lightCubeVAO.Bind();
 	// we only need to bind to the VBO, the container's VBO's handle already contains the data.
 	VBO.Bind();
 
 	// set the vertex attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), static_cast<void *>(nullptr));
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), static_cast<void *>(nullptr));
 	glEnableVertexAttribArray(0);
 
 	// unbind
@@ -154,26 +159,18 @@ int main()
 
 	auto cubeWorldMatrix = glm::mat4(1.0f);
 
+	unsigned int diffuseMap = LoadTexture("textures/container2.png");
+	unsigned int specularMap = LoadTexture("textures/container2_specular.png");
+
 	lightingShader.Use();
-	// lightingShader.SetVec3("material.ambient", glm::vec3(1.0f, 0.5f, 0.31f));
-	// lightingShader.SetVec3("material.diffuse", glm::vec3(1.0f, 0.5f, 0.31f));
-	// lightingShader.SetVec3("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
-	// lightingShader.SetFloat("material.shininess", 32.0f);
-	//
-	// lightingShader.SetVec3("light.ambient", glm::vec3(0.2f));
-	// lightingShader.SetVec3("light.diffuse",  glm::vec3(0.8f)); // darken diffuse light a bit
-	// lightingShader.SetVec3("light.specular", glm::vec3(1.0f));
 
-	// gold material values
-	lightingShader.SetVec3("material.ambient", glm::vec3(0.24725f, 0.1995f, 0.0745f));
-	lightingShader.SetVec3("material.diffuse", glm::vec3(0.75164f, 0.60648f, 0.22648f));
-	lightingShader.SetVec3("material.specular", glm::vec3(0.628281f, 0.555802f, 0.366065f));
-	lightingShader.SetFloat("material.shininess", 0.4f * 128.0f);
+	lightingShader.SetInt("material.diffuse", 0);
+	lightingShader.SetInt("material.specular", 1);
+	lightingShader.SetFloat("material.shininess", 64.0f);
 
-	lightingShader.SetVec3("light.ambient", glm::vec3(1.0f));
-	lightingShader.SetVec3("light.diffuse",  glm::vec3(1.0f));
+	lightingShader.SetVec3("light.ambient", glm::vec3(0.2f));
+	lightingShader.SetVec3("light.diffuse",  glm::vec3(0.5f));
 	lightingShader.SetVec3("light.specular", glm::vec3(1.0f));
-
 
 	lightingShader.SetMat4("modelMatrix", cubeWorldMatrix);
 
@@ -206,11 +203,11 @@ int main()
 		// Uncomment to use wireframe mode
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-		auto lightOffset = glm::vec3(0.0f, sin(currentFrame), 0.0f);
-		auto rotation = glm::rotate(cos(currentFrame) * deltaTime, glm::vec3(0.0f, 1.0f, 0.0f));
-		auto translation = glm::translate(lightOffset * deltaTime);
-		lightModel = rotation * translation * lightModel;
-		lightPos = glm::vec3(lightModel[3][0], lightModel[3][1], lightModel[3][2]);
+		// auto lightOffset = glm::vec3(0.0f, sin(currentFrame), 0.0f);
+		// auto rotation = glm::rotate(cos(currentFrame) * deltaTime, glm::vec3(0.0f, 1.0f, 0.0f));
+		// auto translation = glm::translate(lightOffset * deltaTime);
+		// lightModel = rotation * translation * lightModel;
+		// lightPos = glm::vec3(lightModel[3][0], lightModel[3][1], lightModel[3][2]);
 
 		lightingShader.Use();
 
@@ -218,14 +215,22 @@ int main()
 		lightingShader.SetMat4("projectionMatrix", projection);
 		lightingShader.SetVec3("light.position", lightPos);
 		lightingShader.SetVec3("viewPosition", camera.m_position);
-		VAO.Bind();
+
+		// bind diffuse map
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, diffuseMap);
+
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, specularMap);
+
+		cubeVAO.Bind();
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		lightSourceShader.Use();
 		lightSourceShader.SetMat4("modelMatrix", lightModel);
 		lightSourceShader.SetMat4("viewMatrix", view);
 		lightSourceShader.SetMat4("projectionMatrix", projection);
-		lightVAO.Bind();
+		lightCubeVAO.Bind();
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		VertexArrayObject::Unbind();
 
@@ -295,4 +300,43 @@ void MouseCallback(GLFWwindow* window, double xpos, double ypos)
 void ScrollCallback(GLFWwindow* window, double xOffset, double yOffset)
 {
 	camera.ProcessMouseScroll(static_cast<float>(yOffset));
+}
+
+// utility function for loading a 2D texture from file
+// ---------------------------------------------------
+unsigned int LoadTexture(char const * path)
+{
+	unsigned int textureID;
+	glGenTextures(1, &textureID);
+
+	int width, height, components;
+	unsigned char *data = stbi_load(path, &width, &height, &components, 0);
+	if (data)
+	{
+		GLenum format{};
+		if (components == 1)
+			format = GL_RED;
+		else if (components == 3)
+			format = GL_RGB;
+		else if (components == 4)
+			format = GL_RGBA;
+
+		glBindTexture(GL_TEXTURE_2D, textureID);
+		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		stbi_image_free(data);
+	}
+	else
+	{
+		std::cout << "Texture failed to load at path: " << path << std::endl;
+		stbi_image_free(data);
+	}
+
+	return textureID;
 }
