@@ -155,9 +155,30 @@ int main()
 	auto cubeWorldMatrix = glm::mat4(1.0f);
 
 	lightingShader.Use();
-	lightingShader.SetMat4("ModelMatrix", cubeWorldMatrix);
-	lightingShader.SetVec3("ObjectColor", glm::vec3(1.0f, 0.5f, 0.3f));
-	lightingShader.SetVec3("LightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+	// lightingShader.SetVec3("material.ambient", glm::vec3(1.0f, 0.5f, 0.31f));
+	// lightingShader.SetVec3("material.diffuse", glm::vec3(1.0f, 0.5f, 0.31f));
+	// lightingShader.SetVec3("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
+	// lightingShader.SetFloat("material.shininess", 32.0f);
+	//
+	// lightingShader.SetVec3("light.ambient", glm::vec3(0.2f));
+	// lightingShader.SetVec3("light.diffuse",  glm::vec3(0.8f)); // darken diffuse light a bit
+	// lightingShader.SetVec3("light.specular", glm::vec3(1.0f));
+
+	// gold material values
+	lightingShader.SetVec3("material.ambient", glm::vec3(0.24725f, 0.1995f, 0.0745f));
+	lightingShader.SetVec3("material.diffuse", glm::vec3(0.75164f, 0.60648f, 0.22648f));
+	lightingShader.SetVec3("material.specular", glm::vec3(0.628281f, 0.555802f, 0.366065f));
+	lightingShader.SetFloat("material.shininess", 0.4f * 128.0f);
+
+	lightingShader.SetVec3("light.ambient", glm::vec3(1.0f));
+	lightingShader.SetVec3("light.diffuse",  glm::vec3(1.0f));
+	lightingShader.SetVec3("light.specular", glm::vec3(1.0f));
+
+
+	lightingShader.SetMat4("modelMatrix", cubeWorldMatrix);
+
+	lightSourceShader.Use();
+	lightSourceShader.SetVec3("lightColor", glm::vec3(1.0f));
 
 	auto lightModel = glm::mat4(1.0f);
 	lightModel = glm::translate(lightModel, lightPos);
@@ -192,17 +213,18 @@ int main()
 		lightPos = glm::vec3(lightModel[3][0], lightModel[3][1], lightModel[3][2]);
 
 		lightingShader.Use();
-		lightingShader.SetMat4("ViewMatrix", view);
-		lightingShader.SetMat4("ProjectionMatrix", projection);
-		lightingShader.SetVec3("LightPos", lightPos);
-		lightingShader.SetVec3("ViewPos", camera.m_position);
+
+		lightingShader.SetMat4("viewMatrix", view);
+		lightingShader.SetMat4("projectionMatrix", projection);
+		lightingShader.SetVec3("light.position", lightPos);
+		lightingShader.SetVec3("viewPosition", camera.m_position);
 		VAO.Bind();
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		lightSourceShader.Use();
-		lightSourceShader.SetMat4("ModelMatrix", lightModel);
-		lightSourceShader.SetMat4("ViewMatrix", view);
-		lightSourceShader.SetMat4("ProjectionMatrix", projection);
+		lightSourceShader.SetMat4("modelMatrix", lightModel);
+		lightSourceShader.SetMat4("viewMatrix", view);
+		lightSourceShader.SetMat4("projectionMatrix", projection);
 		lightVAO.Bind();
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		VertexArrayObject::Unbind();
@@ -220,8 +242,8 @@ void ToggleCamera(GLFWwindow* window)
 {
 	cameraEnabled = !cameraEnabled;
 	glfwSetInputMode(window, GLFW_CURSOR, cameraEnabled ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
-	glfwSetCursorPosCallback(window, cameraEnabled ? MouseCallback : NULL);
-	glfwSetScrollCallback(window, cameraEnabled ? ScrollCallback : NULL);
+	glfwSetCursorPosCallback(window, cameraEnabled ? MouseCallback : nullptr);
+	glfwSetScrollCallback(window, cameraEnabled ? ScrollCallback : nullptr);
 }
 
 void FramebufferSizeCallback(GLFWwindow* window, int width, int height)
