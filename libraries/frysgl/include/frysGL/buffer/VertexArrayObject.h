@@ -4,7 +4,7 @@
 
 class VertexArrayObject {
 private:
-    GLuint m_Handle;
+    GLuint m_Handle{};
 
 public:
     VertexArrayObject();

@@ -6,18 +6,19 @@
 #include <glm/gtc/matrix_transform.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+#include <windows.h>
 
 #include <frysGL/shader/Shader.h>
 #include <frysGL/camera/Camera.h>
 
-#include "frysGL/buffer/VertexArrayObject.h"
+#include <frysGL/buffer/VertexArrayObject.h>
+#include <frysGL/buffer/VertexBufferObject.h>
 
-constexpr int WIDTH = 800;
-constexpr int HEIGHT = 600;
+constexpr int WIDTH = 1280;
+constexpr int HEIGHT = 720;
 
 // camera
 Camera camera(glm::vec3(0.0f, 0.0f, 5.0f)	);
@@ -115,18 +116,18 @@ int main()
 	};
 
 	const VertexArrayObject VAO;
-	GLuint VBO;
+	const VertexBufferObject VBO;
 
 	VAO.Bind();
 
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
+	VBO.Bind();
+	VertexBufferObject::SetBufferData(cubeVertices, sizeof(cubeVertices), GL_STATIC_DRAW);
 
 	// position attribute
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), static_cast<void *>(nullptr));
 	glEnableVertexAttribArray(0);
 
+	// UV attribute
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), reinterpret_cast<void *>(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
@@ -136,14 +137,16 @@ int main()
 
 	VertexArrayObject lightVAO;
 	lightVAO.Bind();
-	// we only need to bind to the VBO, the container's VBO's data already contains the data.
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	// we only need to bind to the VBO, the container's VBO's handle already contains the data.
+	VBO.Bind();
+
 	// set the vertex attribute
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), static_cast<void *>(nullptr));
 	glEnableVertexAttribArray(0);
+
 	// unbind
 	VertexArrayObject::Unbind();
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	VertexBufferObject::Unbind();
 
 	// Init shader
 	const Shader lightingShader("shaders/default.vert", "shaders/default.frag");
