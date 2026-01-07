@@ -39,6 +39,19 @@ float lastFrame = 0.0f; // Time of last frame
 
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
+glm::vec3 cubePositions[] = {
+	glm::vec3( 0.0f,  0.0f,  0.0f),
+	glm::vec3( 2.0f,  5.0f, -15.0f),
+	glm::vec3(-1.5f, -2.2f, -2.5f),
+	glm::vec3(-3.8f, -2.0f, -12.3f),
+	glm::vec3( 2.4f, -0.4f, -3.5f),
+	glm::vec3(-1.7f,  3.0f, -7.5f),
+	glm::vec3( 1.3f, -2.0f, -2.5f),
+	glm::vec3( 1.5f,  2.0f, -2.5f),
+	glm::vec3( 1.5f,  0.2f, -1.5f),
+	glm::vec3(-1.3f,  1.0f, -1.5f)
+};
+
 int main()
 {
 	glfwInit();
@@ -172,6 +185,12 @@ int main()
 	lightingShader.SetVec3("light.diffuse",  glm::vec3(0.5f));
 	lightingShader.SetVec3("light.specular", glm::vec3(1.0f));
 
+	lightingShader.SetFloat("light.constant",  1.0f);
+	lightingShader.SetFloat("light.linear",    0.09f);
+	lightingShader.SetFloat("light.quadratic", 0.032f);
+
+	lightingShader.SetVec3("light.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
+
 	lightingShader.SetMat4("modelMatrix", cubeWorldMatrix);
 
 	lightSourceShader.Use();
@@ -224,7 +243,17 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, specularMap);
 
 		cubeVAO.Bind();
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		for(unsigned int i = 0; i < 10; i++)
+		{
+			auto model = glm::mat4(1.0f);
+			model = glm::translate(model, cubePositions[i]);
+			float angle = 20.0f * i;
+			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+			lightingShader.SetMat4("modelMatrix", model);
+
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
 
 		lightSourceShader.Use();
 		lightSourceShader.SetMat4("modelMatrix", lightModel);
@@ -254,7 +283,7 @@ void ToggleCamera(GLFWwindow* window)
 void FramebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
-	aspectRatio = width / (float)height;
+	aspectRatio = width / static_cast<float>(height);
 }
 
 void ProcessInput(GLFWwindow* window, float deltaTime)
