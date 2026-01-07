@@ -177,6 +177,11 @@ int main()
 
 	lightingShader.Use();
 
+	lightingShader.SetVec3("light.position",  camera.m_Position);
+	lightingShader.SetVec3("light.direction", camera.m_Front);
+	lightingShader.SetFloat("light.cutOff",   glm::cos(glm::radians(12.5f)));
+	lightingShader.SetFloat("light.outerCutOff",   glm::cos(glm::radians(17.5f)));
+
 	lightingShader.SetInt("material.diffuse", 0);
 	lightingShader.SetInt("material.specular", 1);
 	lightingShader.SetFloat("material.shininess", 64.0f);
@@ -213,7 +218,7 @@ int main()
 
 		// update
 		glm::mat4 view = camera.GetViewMatrix();
-		glm::mat4 projection = glm::perspective(glm::radians(camera.m_zoom), aspectRatio, 0.1f, 100.0f);
+		glm::mat4 projection = glm::perspective(glm::radians(camera.m_Zoom), aspectRatio, 0.1f, 100.0f);
 
 		// render
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -232,8 +237,9 @@ int main()
 
 		lightingShader.SetMat4("viewMatrix", view);
 		lightingShader.SetMat4("projectionMatrix", projection);
-		lightingShader.SetVec3("light.position", lightPos);
-		lightingShader.SetVec3("viewPosition", camera.m_position);
+		lightingShader.SetVec3("light.position",  camera.m_Position);
+		lightingShader.SetVec3("light.direction", camera.m_Front);
+		lightingShader.SetVec3("viewPosition", camera.m_Position);
 
 		// bind diffuse map
 		glActiveTexture(GL_TEXTURE0);
