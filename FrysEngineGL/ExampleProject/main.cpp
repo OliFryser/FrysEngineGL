@@ -1,6 +1,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <iostream>
+#include <print>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -37,8 +37,6 @@ unsigned int LoadTexture(char const* path);
 float deltaTime = 0.0f;	// Time between the current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
 
-glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
-
 glm::vec3 cubePositions[] = {
 	glm::vec3( 0.0f,  0.0f,  0.0f),
 	glm::vec3( 2.0f,  5.0f, -15.0f),
@@ -50,6 +48,15 @@ glm::vec3 cubePositions[] = {
 	glm::vec3( 1.5f,  2.0f, -2.5f),
 	glm::vec3( 1.5f,  0.2f, -1.5f),
 	glm::vec3(-1.3f,  1.0f, -1.5f)
+};
+
+constexpr unsigned int POINT_LIGHT_AMOUNT = 4;
+
+glm::vec3 pointLightPositions[] = {
+	glm::vec3( 0.7f,  0.2f,  2.0f),
+	glm::vec3( 2.3f, -3.3f, -4.0f),
+	glm::vec3(-4.0f,  2.0f, -12.0f),
+	glm::vec3( 0.0f,  0.0f, -3.0f)
 };
 
 int main()
@@ -65,7 +72,7 @@ int main()
 	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "LearnOpenGL", nullptr, nullptr);
 	if (window == nullptr)
 	{
-		std::cout << "Failed to create GLFW window" << std::endl;
+		std::println("Failed to create GLFW window");
 		glfwTerminate();
 		return -1;
 	}
@@ -74,7 +81,7 @@ int main()
 
 	if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
 	{
-		std::cout << "Failed to initialize GLAD" << std::endl;
+		std::println("Failed to initialize GLAD");
 		return -1;
 	}
 
@@ -177,33 +184,52 @@ int main()
 
 	lightingShader.Use();
 
-	lightingShader.SetVec3("light.position",  camera.m_Position);
-	lightingShader.SetVec3("light.direction", camera.m_Front);
-	lightingShader.SetFloat("light.cutOff",   glm::cos(glm::radians(12.5f)));
-	lightingShader.SetFloat("light.outerCutOff",   glm::cos(glm::radians(17.5f)));
-
 	lightingShader.SetInt("material.diffuse", 0);
 	lightingShader.SetInt("material.specular", 1);
 	lightingShader.SetFloat("material.shininess", 64.0f);
 
-	lightingShader.SetVec3("light.ambient", glm::vec3(0.2f));
-	lightingShader.SetVec3("light.diffuse",  glm::vec3(0.5f));
-	lightingShader.SetVec3("light.specular", glm::vec3(1.0f));
+	// SpotLight
+	lightingShader.SetFloat("spotLight.cutOff",   glm::cos(glm::radians(12.5f)));
+	lightingShader.SetFloat("spotLight.outerCutOff",   glm::cos(glm::radians(17.5f)));
 
-	lightingShader.SetFloat("light.constant",  1.0f);
-	lightingShader.SetFloat("light.linear",    0.09f);
-	lightingShader.SetFloat("light.quadratic", 0.032f);
+	lightingShader.SetVec3("spotLight.ambient", glm::vec3(0.2f));
+	lightingShader.SetVec3("spotLight.diffuse",  glm::vec3(0.5f));
+	lightingShader.SetVec3("spotLight.specular", glm::vec3(1.0f));
 
-	lightingShader.SetVec3("light.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
+	lightingShader.SetFloat("spotLight.attenuation.constant",  1.0f);
+	lightingShader.SetFloat("spotLight.attenuation.linear",    0.09f);
+	lightingShader.SetFloat("spotLight.attenuation.quadratic", 0.032f);
+
+
+	// directional
+	lightingShader.SetVec3("directionalLight.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
+	lightingShader.SetVec3("directionalLight.ambient", glm::vec3(0.2f));
+	lightingShader.SetVec3("directionalLight.diffuse",  glm::vec3(0.5f));
+	lightingShader.SetVec3("directionalLight.specular", glm::vec3(1.0f));
+
+	lightingShader.SetFloat("directionalLight.attenuation.constant",  1.0f);
+	lightingShader.SetFloat("directionalLight.attenuation.linear",    0.09f);
+	lightingShader.SetFloat("directionalLight.attenuation.quadratic", 0.032f);
+
+	for (unsigned int i = 0; i < POINT_LIGHT_AMOUNT; i++)
+	{
+		std::string prefix = std::format("pointLights[{}]", i);
+		std::println("{}", prefix);
+		lightingShader.SetVec3(std::format("{}.position", prefix), pointLightPositions[i]);
+		lightingShader.SetVec3(std::format("{}.ambient", prefix), glm::vec3(0.2f, 0.0f, 0.0f));
+		lightingShader.SetVec3(std::format("{}.diffuse", prefix),  glm::vec3(0.5f, 0.0f, 0.0f));
+		lightingShader.SetVec3(std::format("{}.specular", prefix), glm::vec3(1.0f));
+
+		lightingShader.SetFloat(std::format("{}.attenuation.constant", prefix),  1.0f);
+		lightingShader.SetFloat(std::format("{}.attenuation.linear", prefix),    0.09f);
+		lightingShader.SetFloat(std::format("{}.attenuation.quadratic", prefix), 0.032f);
+	}
 
 	lightingShader.SetMat4("modelMatrix", cubeWorldMatrix);
 
 	lightSourceShader.Use();
-	lightSourceShader.SetVec3("lightColor", glm::vec3(1.0f));
+	lightSourceShader.SetVec3("lightColor", glm::vec3(1.0f, 0.0f, 0.0f));
 
-	auto lightModel = glm::mat4(1.0f);
-	lightModel = glm::translate(lightModel, lightPos);
-	lightModel = glm::scale(lightModel, glm::vec3(0.2f));
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -237,9 +263,10 @@ int main()
 
 		lightingShader.SetMat4("viewMatrix", view);
 		lightingShader.SetMat4("projectionMatrix", projection);
-		lightingShader.SetVec3("light.position",  camera.m_Position);
-		lightingShader.SetVec3("light.direction", camera.m_Front);
 		lightingShader.SetVec3("viewPosition", camera.m_Position);
+
+		lightingShader.SetVec3("spotLight.position",  camera.m_Position);
+		lightingShader.SetVec3("spotLight.direction", camera.m_Front);
 
 		// bind diffuse map
 		glActiveTexture(GL_TEXTURE0);
@@ -261,12 +288,21 @@ int main()
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 
+
 		lightSourceShader.Use();
-		lightSourceShader.SetMat4("modelMatrix", lightModel);
 		lightSourceShader.SetMat4("viewMatrix", view);
 		lightSourceShader.SetMat4("projectionMatrix", projection);
-		lightCubeVAO.Bind();
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		for (auto pointLightPosition : pointLightPositions)
+		{
+			auto lightModel = glm::mat4(1.0f);
+			lightModel = glm::translate(lightModel, pointLightPosition);
+			lightModel = glm::scale(lightModel, glm::vec3(0.2f));
+			lightSourceShader.SetMat4("modelMatrix", lightModel);
+			lightCubeVAO.Bind();
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
+
 		VertexArrayObject::Unbind();
 
 		// check and call events and swap the buffers
@@ -369,7 +405,7 @@ unsigned int LoadTexture(char const * path)
 	}
 	else
 	{
-		std::cout << "Texture failed to load at path: " << path << std::endl;
+		std::println("Texture failed to load at path: {}", path);
 		stbi_image_free(data);
 	}
 

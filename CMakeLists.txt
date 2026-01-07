@@ -1,7 +1,7 @@
 ﻿# CMakeList.txt : Top-level CMake project file, do global configuration
 # and include sub-projects here.
 #
-cmake_minimum_required (VERSION 3.8)
+cmake_minimum_required (VERSION 3.28)
 
 # Enable Hot Reload for MSVC compilers if supported.
 if (POLICY CMP0141)
@@ -35,6 +35,12 @@ if(APPLE)
 endif()
 
 project ("FrysEngineGLExample")
+
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+
 set(EXTERNAL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../OpenGL")
 
 set(LIBRARIES_SOURCE_PATH ${CMAKE_SOURCE_DIR}/libraries)

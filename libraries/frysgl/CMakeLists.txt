@@ -16,3 +16,4 @@ FOREACH(subdir ${subdirectories})
 ENDFOREACH()
 
 add_library(frysgl STATIC ${target_inc} ${target_src})
+target_compile_features(frysgl PUBLIC cxx_std_23)
