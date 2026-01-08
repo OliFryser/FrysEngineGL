@@ -214,15 +214,14 @@ int main()
 	for (unsigned int i = 0; i < POINT_LIGHT_AMOUNT; i++)
 	{
 		std::string prefix = std::format("pointLights[{}]", i);
-		std::println("{}", prefix);
-		lightingShader.SetVec3(std::format("{}.position", prefix), pointLightPositions[i]);
-		lightingShader.SetVec3(std::format("{}.ambient", prefix), glm::vec3(0.2f, 0.0f, 0.0f));
-		lightingShader.SetVec3(std::format("{}.diffuse", prefix),  glm::vec3(0.5f, 0.0f, 0.0f));
-		lightingShader.SetVec3(std::format("{}.specular", prefix), glm::vec3(1.0f));
+		lightingShader.SetVec3(prefix + ".position", pointLightPositions[i]);
+		lightingShader.SetVec3(prefix + ".ambient", glm::vec3(0.2f, 0.0f, 0.0f));
+		lightingShader.SetVec3(prefix + ".diffuse", glm::vec3(0.5f, 0.0f, 0.0f));
+		lightingShader.SetVec3(prefix + ".specular", glm::vec3(1.0f));
 
-		lightingShader.SetFloat(std::format("{}.attenuation.constant", prefix),  1.0f);
-		lightingShader.SetFloat(std::format("{}.attenuation.linear", prefix),    0.09f);
-		lightingShader.SetFloat(std::format("{}.attenuation.quadratic", prefix), 0.032f);
+		lightingShader.SetFloat(prefix + ".attenuation.constant", 1.0f);
+		lightingShader.SetFloat(prefix + ".attenuation.linear", 0.09f);
+		lightingShader.SetFloat(prefix + ".attenuation.quadratic", 0.032f);
 	}
 
 	lightingShader.SetMat4("modelMatrix", cubeWorldMatrix);
