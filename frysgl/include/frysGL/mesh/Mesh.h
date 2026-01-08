@@ -29,11 +29,11 @@ namespace frysgl
         std::vector<Texture>      m_Textures;
 
         Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
-        void Draw(Shader &shader);
+        void Draw(const Shader &shader) const;
 
     private:
         //  render data
-        unsigned int VAO, VBO, EBO;
+        unsigned int m_VAO, m_VBO, m_EBO;
         void setupMesh();
     };
 } // frysgl
