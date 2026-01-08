@@ -4,7 +4,6 @@ add_executable (ExampleProject main.cpp)
 target_link_libraries(ExampleProject PRIVATE
 	glfw
 	frysgl
-	stb
 )
 
 target_compile_features(ExampleProject PUBLIC cxx_std_23)

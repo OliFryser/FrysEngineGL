@@ -8,4 +8,9 @@ add_library(frysgl STATIC
 target_include_directories(frysgl PUBLIC include)
 target_compile_features(frysgl PUBLIC cxx_std_23)
 
-target_link_libraries(frysgl PUBLIC glad glm)
+target_link_libraries(frysgl PUBLIC
+	glad
+	glm
+	stb
+	assimp
+)
