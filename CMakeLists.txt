@@ -1,13 +1,30 @@
 ﻿# CMakeList.txt : Top-level CMake project file, do global configuration
 # and include sub-projects here.
 #
-cmake_minimum_required (VERSION 3.28)
+cmake_minimum_required (VERSION 3.30)
+
+project (FrysEngineGL DESCRIPTION "An simple OpenGL engine"
+                      LANGUAGES CXX C)
 
 # Enable Hot Reload for MSVC compilers if supported.
 if (POLICY CMP0141)
   cmake_policy(SET CMP0141 NEW)
   set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
 endif()
+
+# Only do these if this is the main project, and not if it is included through add_subdirectory
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    set(CMAKE_CXX_STANDARD 23)
+    # Let's ensure -std=c++xx instead of -std=g++xx
+    set(CMAKE_CXX_EXTENSIONS OFF)
+    # Let's nicely support folders in IDEs
+    set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+endif()
+
+
+# ----- DEPENDENCIES  ----
+
+
 
 MACRO(SUBDIRLIST result curdir)
     FILE(GLOB children RELATIVE ${curdir} ${curdir}/*)
@@ -20,39 +37,9 @@ MACRO(SUBDIRLIST result curdir)
     SET(${result} ${dirlist})
 ENDMACRO()
 
-if(APPLE)
-    find_library(IOKIT_LIBRARY IOKit)
-    find_library(COCOA_LIBRARY Cocoa)
-    find_library(OPENGL_LIBRARY OpenGL)
-    find_library(COREVIDEO_LIBRARY CoreVideo)
-
-    set(APPLE_LIBRARIES 
-		${OPENGL_LIBRARY}
-		${COCOA_LIBRARY}
-		${IOKIT_LIBRARY}
-		${COREVIDEO_LIBRARY}
-	)
-endif()
-
-project ("FrysEngineGLExample")
-
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
-
-set(EXTERNAL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../OpenGL")
-
-set(LIBRARIES_SOURCE_PATH ${CMAKE_SOURCE_DIR}/libraries)
-include_directories(
-    ${EXTERNAL_DIR}/Include
-    ${LIBRARIES_SOURCE_PATH}/frysgl/include
-    ${LIBRARIES_SOURCE_PATH}/stb/include
-    ${LIBRARIES_SOURCE_PATH}/glm/include
-)
-
-link_directories(${EXTERNAL_DIR}/Libs)
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 # Include sub-projects.
-add_subdirectory(libraries)
-add_subdirectory ("FrysEngineGL")
+add_subdirectory(extern)
+add_subdirectory("frysgl")
+add_subdirectory("FrysEngineGL")
