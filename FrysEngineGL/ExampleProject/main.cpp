@@ -175,13 +175,13 @@ int main()
 	VertexBufferObject::Unbind();
 
 	// Init shader
-	const Shader lightingShader("shaders/default.vert", "shaders/default.frag");
-	const Shader lightSourceShader("shaders/default.vert", "shaders/lightSource.frag");
+	const Shader lightingShader("assets/shaders/default.vert", "assets/shaders/default.frag");
+	const Shader lightSourceShader("assets/shaders/default.vert", "assets/shaders/lightSource.frag");
 
 	auto cubeWorldMatrix = glm::mat4(1.0f);
 
-	unsigned int diffuseMap = LoadTexture("textures/container2.png");
-	unsigned int specularMap = LoadTexture("textures/container2_specular.png");
+	unsigned int diffuseMap = LoadTexture("assets/textures/container2.png");
+	unsigned int specularMap = LoadTexture("assets/textures/container2_specular.png");
 
 	lightingShader.Use();
 
