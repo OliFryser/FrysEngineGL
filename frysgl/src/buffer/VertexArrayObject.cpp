@@ -1,15 +1,16 @@
 #include <frysGL/buffer/VertexArrayObject.h>
-
-VertexArrayObject::VertexArrayObject()
+namespace frysgl
 {
-    glGenVertexArrays(1, &m_Handle);
-}
+    VertexArrayObject::VertexArrayObject()
+    {
+        glGenVertexArrays(1, &m_Handle);
+    }
 
-void VertexArrayObject::Bind() const {
-    glBindVertexArray(m_Handle);
-}
+    void VertexArrayObject::Bind() const {
+        glBindVertexArray(m_Handle);
+    }
 
-void VertexArrayObject::Unbind() {
-    glBindVertexArray(0);
+    void VertexArrayObject::Unbind() {
+        glBindVertexArray(0);
+    }
 }
-

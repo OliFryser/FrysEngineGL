@@ -17,6 +17,8 @@
 #include <frysGL/buffer/VertexArrayObject.h>
 #include <frysGL/buffer/VertexBufferObject.h>
 
+using namespace frysgl;
+
 constexpr int WIDTH = 1280;
 constexpr int HEIGHT = 720;
 

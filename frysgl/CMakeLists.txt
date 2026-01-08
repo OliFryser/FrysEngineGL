@@ -3,6 +3,8 @@ add_library(frysgl STATIC
 		include/frysGL/buffer/VertexBufferObject.h src/buffer/VertexBufferObject.cpp
 		include/frysGL/camera/Camera.h src/camera/Camera.cpp
 		include/frysGL/shader/Shader.h src/shader/Shader.cpp
+		src/mesh/Mesh.cpp
+		include/frysGL/mesh/Mesh.h
 )
 
 target_include_directories(frysgl PUBLIC include)
